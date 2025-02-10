@@ -341,6 +341,33 @@ components:
 	assert.Nil(t, changes)
 }
 
+func TestCompareSchemas_IdenticalDisorder(t *testing.T) {
+	left := `openapi: 3.0
+components:
+  schemas:
+    OK:
+      type: int
+    Yo:
+      type: string`
+
+	right := `openapi: 3.0
+components:
+  schemas:
+    Yo:
+      type: int
+    OK:
+      type: string`
+
+	leftDoc, rightDoc := test_BuildDoc(left, right)
+
+	// extract left reference schema and non reference schema.
+	lSchemaProxy := leftDoc.Components.Value.FindSchema("OK").Value
+	rSchemaProxy := rightDoc.Components.Value.FindSchema("OK").Value
+
+	changes := CompareSchemas(rSchemaProxy, lSchemaProxy)
+	assert.Nil(t, changes)
+}
+
 func TestCompareSchemas_Identical_Ref(t *testing.T) {
 	left := `openapi: 3.0
 components:
